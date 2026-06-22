@@ -26,8 +26,7 @@
             // 3. iOS TEST: Deep link workaround to force Safari/Chrome
             else if (/iPhone|iPad|iPod/i.test(ua)) {
                 var cleanUrl = currentUrl.replace(/^https?:\/\//, '');
-                // Try forcing Chrome app on iOS if installed
-                window.location.href = "googlechrome://" + cleanUrl;
+    window.location.replace("https://" + cleanUrl);
             }
         }
     })();
