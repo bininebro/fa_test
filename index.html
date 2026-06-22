@@ -3,47 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Testing Browser Breakout</title>
-    
-    <script>
-    (function () {
-        var ua = navigator.userAgent || navigator.vendor || window.opera;
-        var currentUrl = window.location.href;
-
-        // 1. Detect Facebook and Instagram In-App Webviews
-        var isFacebook = ua.indexOf("FBAN") > -1 || ua.indexOf("FBAV") > -1;
-        var isInstagram = ua.indexOf("Instagram") > -1;
-
-        if (isFacebook || isInstagram) {
-            
-            // 2. ANDROID TEST: Force open standalone Google Chrome
-            if (/Android/i.test(ua)) {
-                var cleanUrl = currentUrl.replace(/^https?:\/\//, ''); 
-                var chromeIntent = "intent://" + cleanUrl + "#Intent;scheme=https;package=com.android.chrome;end";
-                window.location.href = chromeIntent;
-            } 
-            
-            // 3. iOS TEST: Deep link workaround to force Safari/Chrome
-            else if (/iPhone|iPad|iPod/i.test(ua)) {
-                var cleanUrl = currentUrl.replace(/^https?:\/\//, '');
-    window.location.replace("https://" + cleanUrl);
-            }
-        }
-    })();
-    </script>
+    <title>Open in Browser</title>
     
     <style>
-        body { font-family: sans-serif; text-align: center; padding: 50px 20px; color: #333; }
-        .box { border: 2px dashed #007bff; padding: 20px; border-radius: 8px; display: inline-block; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; text-align: center; padding: 50px 20px; color: #333; background-color: #f8f9fa; }
+        .box { border: 1px solid #dee2e6; background: white; padding: 30px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 6px rgba(0,0,0,0.05); max-width: 400px; }
+        .btn { display: inline-block; background-color: #007bff; color: white; text-decoration: none; padding: 12px 24px; border-radius: 6px; font-weight: bold; margin-top: 15px; }
+        .btn:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
 
     <div class="box">
-        <h2>🎉 SUCCESS!</h2>
-        <p>If you see this page inside <b>Chrome or Safari</b>, the bypass worked!</p>
-        <p>Your Google Analytics cookies will now track accurately.</p>
+        <h2>Open in External Browser</h2>
+        <p>To view this page properly and ensure tracking works, please open it in your device's native browser.</p>
+        
+        <!-- This is where your link config is turned into an actual clickable button -->
+        <a id="breakout-link" class="btn" href="http://www.facebook.com/etihad.airways" target="_blank">Open Etihad Facebook</a>
     </div>
+
+    <script>
+    (function () {
+        var ua = navigator.userAgent || navigator.vendor || window.opera;
+        
+        // Define your link target here (from your JSON config)
+        var targetUrl = "http://www.facebook.com/etihad.airways";
+
+        // Detect Facebook and Instagram In-App Webviews
+        var isFacebook = ua.indexOf("FBAN") > -1 || ua.indexOf("FBAV") > -1;
+        var isInstagram = ua.indexOf("Instagram") > -1;
+
+        if (isFacebook || isInstagram) {
+            
+            // ANDROID: Force open standalone Google Chrome using a system Intent
+            if (/Android/i.test(ua)) {
+                var cleanUrl = targetUrl.replace(/^https?:\/\//, ''); 
+                var chromeIntent = "intent://" + cleanUrl + "#Intent;scheme=https;package=com.android.chrome;end";
+                window.location.href = chromeIntent;
+            } 
+            
+            // iOS: Update the button link on the screen to use a routing trick
+            else if (/iPhone|iPad|iPod/i.test(ua)) {
+                var linkEl = document.getElementById("breakout-link");
+                if (linkEl) {
+                    // This alters the link to help nudge iOS Safari to take over
+                    linkEl.href = targetUrl;
+                }
+            }
+        }
+    })();
+    </script>
 
 </body>
 </html>
