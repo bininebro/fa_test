@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Testing Browser Breakout</title>
     
- <script>
+<script>
 (function () {
+    if (sessionStorage.getItem("openedExternal")) {
+        return;
+    }
+
     var ua = navigator.userAgent || navigator.vendor || window.opera;
     var currentUrl = window.location.href;
 
@@ -15,30 +19,23 @@
 
     if (isFacebook || isInstagram) {
 
+        sessionStorage.setItem("openedExternal", "1");
+
         if (/Android/i.test(ua)) {
             var cleanUrl = currentUrl.replace(/^https?:\/\//, '');
             var encodedFallback = encodeURIComponent(currentUrl);
-            var chromeIntent = "intent://" + cleanUrl
-                + "#Intent;"
-                + "scheme=https;"
-                + "package=com.android.chrome;"
-                + "S.browser_fallback_url=https://www.ethiopianairlines.com/pt-gq/go-further-save-more-up-to-15-percent;"
-                + "end";
-            window.location.href = chromeIntent;
 
-        } else if (/iPhone|iPad|iPod/i.test(ua)) {
-            var cleanUrl = currentUrl.replace(/^https?:\/\//, '');
-            // Try Chrome deep link first
-            window.location.href = "googlechrome://" + cleanUrl;
-            // If Chrome not installed, fall back to forcing out of WebView
-            setTimeout(function () {
-                window.location.href = currentUrl;
-            }, 500);
+            window.location.href =
+                "intent://" + cleanUrl +
+                "#Intent;" +
+                "scheme=https;" +
+                "package=com.android.chrome;" +
+                "S.browser_fallback_url=" + encodedFallback + ";" +
+                "end";
         }
     }
 })();
 </script>
-    
     <style>
         body { font-family: sans-serif; text-align: center; padding: 50px 20px; color: #333; }
         .box { border: 2px dashed #007bff; padding: 20px; border-radius: 8px; display: inline-block; }
