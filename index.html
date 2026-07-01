@@ -7,31 +7,38 @@
     
 <script>
 (function () {
-    if (sessionStorage.getItem("openedExternal")) {
+    // 1. Check if we already tried to redirect in this session
+    if (sessionStorage.getItem('prevent_webview_loop')) {
+        // User came back to this page; don't redirect again.
         return;
     }
 
     var ua = navigator.userAgent || navigator.vendor || window.opera;
     var currentUrl = window.location.href;
-
     var isFacebook = ua.indexOf("FBAN") > -1 || ua.indexOf("FBAV") > -1;
     var isInstagram = ua.indexOf("Instagram") > -1;
 
     if (isFacebook || isInstagram) {
-
-        sessionStorage.setItem("openedExternal", "1");
+        // 2. Mark this session so the back button works if they return
+        sessionStorage.setItem('prevent_webview_loop', 'true');
 
         if (/Android/i.test(ua)) {
             var cleanUrl = currentUrl.replace(/^https?:\/\//, '');
             var encodedFallback = encodeURIComponent(currentUrl);
-
-            window.location.href =
-                "intent://" + cleanUrl +
-                "#Intent;" +
-                "scheme=https;" +
-                "package=com.android.chrome;" +
-                "S.browser_fallback_url=" + encodedFallback + ";" +
-                "end";
+            var chromeIntent = "intent://" + cleanUrl + "#Intent;" + 
+                               "scheme=https;" + 
+                               "package=com.android.chrome;" + 
+                               "S.browser_fallback_url=" + encodedFallback + ";" + 
+                               "end";
+            window.location.href = chromeIntent;
+        } else if (/iPhone|iPad|iPod/i.test(ua)) {
+            var cleanUrl = currentUrl.replace(/^https?:\/\//, '');
+            
+            window.location.href = "googlechrome://" + cleanUrl;
+            
+            setTimeout(function () {
+                window.location.href = currentUrl;
+            }, 500);
         }
     }
 })();
